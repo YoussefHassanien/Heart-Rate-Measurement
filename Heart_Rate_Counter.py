@@ -41,7 +41,7 @@ class Ui_Form(object):
     def calculate_peaks(self):
         self.peaks = 0
         for i in range(self.x_points_plotted):
-            if i == 0 or i == 1 or i == 2:
+            if i < 3:
                 pass
             else:
                 if ((400 <= self.y_coordinates[i - 3] <= 580) and
