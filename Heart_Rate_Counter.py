@@ -28,7 +28,7 @@ class Ui_Form(object):
 
 
     def update_plot_signal(self):
-        self.x_points_plotted += 100
+        self.x_points_plotted += 50
         self.graphicsView.setLimits(xMin=0, xMax=float('inf'))
         self.plotted_ecg_signal.setData(self.y_coordinates[0: self.x_points_plotted + 1])
         if self.x_points_plotted <= len(self.y_coordinates):
@@ -43,7 +43,7 @@ class Ui_Form(object):
             if i == 0 or i == 1 or i == 2:
                 pass
             else:
-                if ((300 <= self.y_coordinates[i - 3] <= 580) and
+                if ((400 <= self.y_coordinates[i - 3] <= 580) and
                         (580 < self.y_coordinates[i - 2] <= 800) and (
                         800 > self.y_coordinates[i - 1] >= 300) and (
                         580 >= self.y_coordinates[i] > 300)):
