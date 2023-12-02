@@ -41,7 +41,7 @@ Welcome to the ECG Signal Analysis Application repository! This Python desktop a
     python Heart_Rate_Counter.py
     ```
 
-2. Load an ECG signal using the "Load Signal" button.
+2. Load an ECG signal using the "Browse Signal" button.
 
 3. The ECG signal will be dynamically plotted in the main window.
 
