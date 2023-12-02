@@ -24,7 +24,7 @@ Welcome to the ECG Signal Analysis Application repository! This Python desktop a
 
     ```bash
     git clone https://github.com/YoussefHassanien/Heart-Rate-Measurement.git
-    cd ecg-signal-analysis
+    cd Heart-Rate-Measurement
     ```
 
 2. Install the required libraries:
