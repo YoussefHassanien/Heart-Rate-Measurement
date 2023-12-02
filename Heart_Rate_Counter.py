@@ -9,6 +9,7 @@ class Ui_Form(object):
     def browse_signal(self):
         file_path, _ = QFileDialog.getOpenFileName(None, "Browse Signal", "", "All Files (*)")
         if file_path:
+            self.graphicsView.clear()
             data_header_rows = ["nSeq", "I1", "I2", "O1", "O2", "A1", "A2", "A3", "A4", "A5", "A6"]
             data = pd.read_csv(file_path,delim_whitespace=True, usecols=data_header_rows)
             self.y_coordinates = data["A2"]
@@ -28,7 +29,7 @@ class Ui_Form(object):
 
 
     def update_plot_signal(self):
-        self.x_points_plotted += 50
+        self.x_points_plotted += 1
         self.graphicsView.setLimits(xMin=0, xMax=float('inf'))
         self.plotted_ecg_signal.setData(self.y_coordinates[0: self.x_points_plotted + 1])
         if self.x_points_plotted <= len(self.y_coordinates):
