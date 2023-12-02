@@ -16,8 +16,10 @@ class Ui_Form(object):
 
 
     def plot_signal(self):
+        self.minutes_counter = 0
+        self.heart_rate = 0
         self.x_points_plotted = 0
-        self.plotted_ecg_signal = self.graphicsView.plot(self.y_coordinates[:1],pen="b")
+        self.plotted_ecg_signal = self.graphicsView.plot(self.y_coordinates[:1], pen="b")
         self.timer = QtCore.QTimer()
         self.timer.setInterval(20)
         self.timer.timeout.connect(self.update_plot_signal)
@@ -26,32 +28,27 @@ class Ui_Form(object):
 
 
     def update_plot_signal(self):
-        self.x_points_plotted += 1
+        self.x_points_plotted += 100
         self.graphicsView.setLimits(xMin=0, xMax=float('inf'))
         self.plotted_ecg_signal.setData(self.y_coordinates[0: self.x_points_plotted + 1])
         if self.x_points_plotted <= len(self.y_coordinates):
             self.graphicsView.getViewBox().setXRange(self.x_points_plotted-100,self.x_points_plotted + 100)
-        self.y_points_plotted = []
-        for i in range(self.x_points_plotted):
-            self.y_points_plotted.append(self.y_coordinates[i])
         if self.x_points_plotted <= len(self.y_coordinates):
             self.calculate_peaks()
 
 
     def calculate_peaks(self):
         self.peaks = 0
-        for i in range(len(self.y_points_plotted)):
+        for i in range(self.x_points_plotted):
             if i == 0 or i == 1 or i == 2:
                 pass
             else:
-                if ((300 <= self.y_points_plotted[i - 3] <= 580) and
-                        (580 < self.y_points_plotted[i - 2] <= 800) and (
-                        800 > self.y_points_plotted[i - 1] >= 300) and (
-                        580 >= self.y_points_plotted[i] > 300)):
+                if ((300 <= self.y_coordinates[i - 3] <= 580) and
+                        (580 < self.y_coordinates[i - 2] <= 800) and (
+                        800 > self.y_coordinates[i - 1] >= 300) and (
+                        580 >= self.y_coordinates[i] > 300)):
                     self.peaks += 1
         self.lcdNumber_2.display(self.peaks)
-        self.minutes_counter = 0
-        self.heart_rate = 0
         if not self.x_points_plotted % 6000:
             self.minutes_counter += 1
             self.calculate_heart_rate()
