@@ -10,9 +10,12 @@ class Ui_Form(object):
         file_path, _ = QFileDialog.getOpenFileName(None, "Browse Signal", "", "All Files (*)")
         if file_path:
             self.graphicsView.clear()
-            data_header_rows = ["nSeq", "I1", "I2", "O1", "O2", "A1", "A2", "A3", "A4", "A5", "A6"]
+            data_header_rows = ["nSeq", "I1", "I2", "O1", "O2", "A2"]#, "A2", "A3", "A4", "A5", "A6"]
             data = pd.read_csv(file_path,delim_whitespace=True, usecols=data_header_rows)
             self.y_coordinates = data["A2"]
+            for i in range(len(self.y_coordinates)):
+                if 630 > self.y_coordinates[i] > 520:
+                    self.y_coordinates[i] -= 75
             self.plot_signal()
 
 
@@ -41,13 +44,10 @@ class Ui_Form(object):
     def calculate_peaks(self):
         self.peaks = 0
         for i in range(self.x_points_plotted):
-            if i < 3:
+            if i < 2:
                 pass
             else:
-                if ((400 <= self.y_coordinates[i - 3] <= 580) and
-                        (580 < self.y_coordinates[i - 2] <= 800) and (
-                        800 > self.y_coordinates[i - 1] >= 300) and (
-                        580 >= self.y_coordinates[i] > 300)):
+                if (self.y_coordinates[i - 1] >= 700) and (300 <= self.y_coordinates[i] < 700):
                     self.peaks += 1
         self.lcdNumber_2.display(self.peaks)
         if not self.x_points_plotted % 6000:
@@ -56,7 +56,7 @@ class Ui_Form(object):
 
     def calculate_heart_rate(self):
         if self.minutes_counter:
-            self.heart_rate = int((self.peaks-(35*self.minutes_counter)) / self.minutes_counter)
+            self.heart_rate = int((self.peaks-(30*self.minutes_counter)) / self.minutes_counter)
         self.lcdNumber.display(self.heart_rate)
 
 
@@ -150,3 +150,6 @@ if __name__ == "__main__":
     ui.setupUi(Form)
     Form.show()
     sys.exit(app.exec_())
+
+
+
