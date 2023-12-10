@@ -2,7 +2,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QFileDialog
 from pyqtgraph import PlotWidget
 import pandas as pd
-
+import numpy as np
 
 class Ui_Form(object):
 
@@ -13,9 +13,7 @@ class Ui_Form(object):
             data_header_rows = ["nSeq", "I1", "I2", "O1", "O2", "A2"]#, "A2", "A3", "A4", "A5", "A6"]
             data = pd.read_csv(file_path,delim_whitespace=True, usecols=data_header_rows)
             self.y_coordinates = data["A2"]
-            for i in range(len(self.y_coordinates)):
-                if 630 > self.y_coordinates[i] > 520:
-                    self.y_coordinates[i] -= 75
+            self.filter_ecg()
             self.plot_signal()
 
 
@@ -23,7 +21,7 @@ class Ui_Form(object):
         self.minutes_counter = 0
         self.heart_rate = 0
         self.x_points_plotted = 0
-        self.plotted_ecg_signal = self.graphicsView.plot(self.y_coordinates[:1], pen="b")
+        self.plotted_ecg_signal = self.graphicsView.plot(self.ecg_signal_filtered[:1].real, pen="b")
         self.timer = QtCore.QTimer()
         self.timer.setInterval(20)
         self.timer.timeout.connect(self.update_plot_signal)
@@ -34,11 +32,23 @@ class Ui_Form(object):
     def update_plot_signal(self):
         self.x_points_plotted += 1
         self.graphicsView.setLimits(xMin=0, xMax=float('inf'))
-        self.plotted_ecg_signal.setData(self.y_coordinates[0: self.x_points_plotted + 1])
-        if self.x_points_plotted <= len(self.y_coordinates):
+        self.plotted_ecg_signal.setData(self.ecg_signal_filtered[0: self.x_points_plotted + 1].real)
+        if self.x_points_plotted <= 840:#len(self.y_coordinates):
             self.graphicsView.getViewBox().setXRange(self.x_points_plotted-100,self.x_points_plotted + 100)
-        if self.x_points_plotted <= len(self.y_coordinates):
+        if self.x_points_plotted <= 840:#len(self.y_coordinates):
             self.calculate_peaks()
+
+
+    def filter_ecg(self):
+        self.ecg_signal_in_frequency_domain = np.fft.fft(self.y_coordinates)
+        self.frequency_components = np.fft.fftfreq(len(self.y_coordinates), d=1/100)
+        self.amplitude_components = np.abs(self.ecg_signal_in_frequency_domain)
+        self.phase_components = np.angle(self.ecg_signal_in_frequency_domain)
+        for i in range (len(self.frequency_components)):
+            if self.frequency_components[i] >= 40 and self.frequency_components[-i] <= -40: #25, #-25
+                self.amplitude_components[i] = 0
+                self.amplitude_components[-i] = 0
+        self.ecg_signal_filtered = np.fft.ifft(self.amplitude_components*np.exp(1j*self.phase_components))
 
 
     def calculate_peaks(self):
@@ -46,9 +56,8 @@ class Ui_Form(object):
         for i in range(self.x_points_plotted):
             if i < 2:
                 pass
-            else:
-                if (self.y_coordinates[i - 1] >= 700) and (300 <= self.y_coordinates[i] < 700):
-                    self.peaks += 1
+            elif (self.y_coordinates[i - 1] >= 700) and (300 <= self.y_coordinates[i] < 700):
+                self.peaks += 1
         self.lcdNumber_2.display(self.peaks)
         if not self.x_points_plotted % 6000:
             self.minutes_counter += 1
